@@ -472,10 +472,8 @@ function renderComplete() {
   const pct = Math.round(q.correct / q.items.length * 100);
   const wrongCount = Object.keys(q.wrongThisRound).length;
   let msg = 'Keep going!';
-  if (pct === 100) msg = 'Perfect score! You nailed every formula.';
-  else if (pct >= 80) msg = 'Great job! Review the ones you missed.';
-  else if (pct >= 50) msg = 'Not bad. Run through the wrong ones again.';
-  else msg = 'Needs work. Try reviewing first, then come back.';
+  if (pct === 100) msg = 'saranghae jalhetsu';
+  else msg = 'jagiya...';
 
   const div = el('div', { class: 'complete' },
     el('div', { class: 'score' }, pct + '%'),
