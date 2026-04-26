@@ -507,7 +507,7 @@ function renderQuiz() {
   );
 
   const isGraph = !!cur.draw;
-  const card = el('div', { class: 'card', style: isGraph ? 'height:auto;min-height:420px' : '' });
+  const card = el('div', { class: 'card' });
 
   if (!q.flipped) {
     if (isGraph) {
