@@ -238,23 +238,23 @@ const FORMULAS = [
 const GRAPHS = [
   // Kinematics
   { id:'gr1', title:'x vs t', xAxis:'t', yAxis:'x', draw:'linear', slope:'Velocity (v)', area:'Nothing', desc:'Position vs Time' },
-  { id:'gr3', title:'v vs t', xAxis:'t', yAxis:'v', draw:'linear', slope:'Acceleration (a)', area:'Displacement (dx)', desc:'Velocity vs Time' },
-  { id:'gr4', title:'a vs t', xAxis:'t', yAxis:'a', draw:'horizontal', slope:'Nothing', area:'Change in velocity (dv)', desc:'Acceleration vs Time' },
+  { id:'gr3', title:'v vs t', xAxis:'t', yAxis:'v', draw:'linear', slope:'Acceleration (a)', area:'Displacement (\u0394x)', desc:'Velocity vs Time' },
+  { id:'gr4', title:'a vs t', xAxis:'t', yAxis:'a', draw:'horizontal', slope:'Nothing', area:'Change in velocity (\u0394v)', desc:'Acceleration vs Time' },
   // Force & Momentum
-  { id:'gr5', title:'F vs t', xAxis:'t', yAxis:'F', draw:'bump', slope:'Nothing', area:'Impulse (J = dp)', desc:'Force vs Time (impulse)' },
+  { id:'gr5', title:'F vs t', xAxis:'t', yAxis:'F', draw:'bump', slope:'Nothing', area:'Impulse (J = \u0394p)', desc:'Force vs Time (impulse)' },
   { id:'gr15', title:'F vs x', xAxis:'x', yAxis:'F', draw:'linear', slope:'Nothing', area:'Work (W)', desc:'Force vs Displacement' },
-  { id:'gr7', title:'p vs t', xAxis:'t', yAxis:'p', draw:'linear', slope:'Net force (Fnet)', area:'Nothing', desc:'Momentum vs Time' },
+  { id:'gr7', title:'p vs t', xAxis:'t', yAxis:'p', draw:'linear', slope:'Net force (F\u2099\u2091\u209C)', area:'Nothing', desc:'Momentum vs Time' },
   { id:'gr16', title:'m vs v', xAxis:'v', yAxis:'m', draw:'linear', slope:'Nothing', area:'Momentum (p)', desc:'Mass vs Velocity' },
   // Energy
-  { id:'gr8', title:'PE vs x', xAxis:'x', yAxis:'U', draw:'parabola-center', slope:'Negative of force (-F)', area:'Nothing', desc:'Potential Energy vs Position' },
+  { id:'gr8', title:'PE vs x', xAxis:'x', yAxis:'U', draw:'parabola-center', slope:'Negative of force (\u2212F)', area:'Nothing', desc:'Potential Energy vs Position' },
   { id:'gr17', title:'P vs t', xAxis:'t', yAxis:'P', draw:'linear', slope:'Nothing', area:'Work (W)', desc:'Power vs Time' },
   { id:'gr18', title:'W vs t', xAxis:'t', yAxis:'W', draw:'linear', slope:'Power (P)', area:'Nothing', desc:'Work vs Time' },
   // Rotation
-  { id:'gr9', title:'theta vs t', xAxis:'t', yAxis:'theta', draw:'linear', slope:'Angular velocity (omega)', area:'Nothing', desc:'Angular Position vs Time' },
-  { id:'gr10', title:'omega vs t', xAxis:'t', yAxis:'omega', draw:'linear', slope:'Angular acceleration (alpha)', area:'Angular displacement (d-theta)', desc:'Angular Velocity vs Time' },
-  { id:'gr11', title:'alpha vs t', xAxis:'t', yAxis:'alpha', draw:'horizontal', slope:'Nothing', area:'Change in angular velocity (d-omega)', desc:'Angular Acceleration vs Time' },
-  { id:'gr12', title:'tau vs t', xAxis:'t', yAxis:'tau', draw:'bump', slope:'Nothing', area:'Angular impulse (dL)', desc:'Torque vs Time' },
-  { id:'gr13', title:'L vs t', xAxis:'t', yAxis:'L', draw:'linear', slope:'Net torque (tau-net)', area:'Nothing', desc:'Angular Momentum vs Time' },
+  { id:'gr9', title:'\u03B8 vs t', xAxis:'t', yAxis:'\u03B8', draw:'linear', slope:'Angular velocity (\u03C9)', area:'Nothing', desc:'Angular Position vs Time' },
+  { id:'gr10', title:'\u03C9 vs t', xAxis:'t', yAxis:'\u03C9', draw:'linear', slope:'Angular acceleration (\u03B1)', area:'Angular displacement (\u0394\u03B8)', desc:'Angular Velocity vs Time' },
+  { id:'gr11', title:'\u03B1 vs t', xAxis:'t', yAxis:'\u03B1', draw:'horizontal', slope:'Nothing', area:'Change in angular velocity (\u0394\u03C9)', desc:'Angular Acceleration vs Time' },
+  { id:'gr12', title:'\u03C4 vs t', xAxis:'t', yAxis:'\u03C4', draw:'bump', slope:'Nothing', area:'Angular impulse (\u0394L)', desc:'Torque vs Time' },
+  { id:'gr13', title:'L vs t', xAxis:'t', yAxis:'L', draw:'linear', slope:'Net torque (\u03C4\u2099\u2091\u209C)', area:'Nothing', desc:'Angular Momentum vs Time' },
 ];
 
 /* Storage */
