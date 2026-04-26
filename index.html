@@ -319,7 +319,7 @@ function drawGraph(canvas, g, w) {
   canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
-  const pad = { t: 16, r: 16, b: 32, l: 40 };
+  const pad = { t: 32, r: 16, b: 32, l: 40 };
   const gw = w - pad.l - pad.r, gh = h - pad.t - pad.b;
 
   ctx.fillStyle = '#12122a'; ctx.fillRect(0, 0, w, h);
@@ -331,8 +331,8 @@ function drawGraph(canvas, g, w) {
   // labels
   ctx.fillStyle = '#e8e8f0'; ctx.font = '14px Arial, Helvetica, sans-serif'; ctx.textAlign = 'center';
   ctx.fillText(g.xAxis, pad.l + gw / 2, h - 6);
-  ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-  ctx.fillText(g.yAxis, pad.l, pad.t - 4);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+  ctx.fillText(g.yAxis, pad.l + 4, pad.t - 6);
 
   // curve
   const fns = {
