@@ -148,6 +148,15 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; bo
 .filter-chip.active { background: rgba(108,99,255,0.15); }
 
 .empty { padding: 40px; text-align: center; color: var(--text-dim); font-size: 14px; }
+
+/* Graph unit */
+.unit-btn.graph-btn { border-color: #ff9800; background: linear-gradient(135deg, var(--bg-card), rgba(255,152,0,0.1)); }
+.unit-btn.graph-btn .unit-num { color: #ff9800; }
+.graph-canvas { display: block; margin: 0 auto; border-radius: 8px; }
+.graph-answer { display: flex; flex-direction: column; gap: 10px; padding: 12px 0; }
+.graph-answer .ga-row { display: flex; gap: 8px; align-items: baseline; }
+.graph-answer .ga-label { font-size: 13px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; min-width: 55px; }
+.graph-answer .ga-val { font-size: 15px; }
 </style>
 </head>
 <body>
@@ -226,6 +235,28 @@ const FORMULAS = [
   { id:'fl4', unit:8, front:"\\text{Bernoulli's Equation?}", back:'P_1 + \\rho g h_1 + \\tfrac{1}{2}\\rho v_1^2 = P_2 + \\rho g h_2 + \\tfrac{1}{2}\\rho v_2^2', latex:'P_1 + \\rho g h_1 + \\tfrac{1}{2}\\rho v_1^2 = P_2 + \\rho g h_2 + \\tfrac{1}{2}\\rho v_2^2', desc:"Bernoulli's Equation" },
 ];
 
+const GRAPHS = [
+  // Kinematics
+  { id:'gr1', title:'x vs t', xAxis:'t', yAxis:'x', draw:'linear', slope:'Velocity (v)', area:'Not meaningful', desc:'Position vs Time' },
+  { id:'gr2', title:'x vs t (accel)', xAxis:'t', yAxis:'x', draw:'parabola', slope:'Instantaneous velocity (v)', area:'Not meaningful', desc:'Position vs Time (constant accel)' },
+  { id:'gr3', title:'v vs t', xAxis:'t', yAxis:'v', draw:'linear', slope:'Acceleration (a)', area:'Displacement (\\Delta x)', desc:'Velocity vs Time' },
+  { id:'gr4', title:'a vs t', xAxis:'t', yAxis:'a', draw:'horizontal', slope:'Not meaningful', area:'Change in velocity (\\Delta v)', desc:'Acceleration vs Time' },
+  // Force & Momentum
+  { id:'gr5', title:'F vs t', xAxis:'t', yAxis:'F', draw:'bump', slope:'Not meaningful', area:'Impulse (J = \\Delta p)', desc:'Force vs Time (impulse)' },
+  { id:'gr6', title:'F vs x (spring)', xAxis:'x', yAxis:'F', draw:'linear', slope:'Spring constant (k)', area:'Work (W = \\tfrac{1}{2}kx^2)', desc:'Force vs Displacement (spring)' },
+  { id:'gr7', title:'p vs t', xAxis:'t', yAxis:'p', draw:'linear', slope:'Net force (F_{net})', area:'Not meaningful', desc:'Momentum vs Time' },
+  // Energy
+  { id:'gr8', title:'PE vs x', xAxis:'x', yAxis:'U', draw:'parabola-center', slope:'Negative of force (-F)', area:'Not meaningful', desc:'Potential Energy vs Position' },
+  // Rotation
+  { id:'gr9', title:'\\theta vs t', xAxis:'t', yAxis:'\\theta', draw:'linear', slope:'Angular velocity (\\omega)', area:'Not meaningful', desc:'Angular Position vs Time' },
+  { id:'gr10', title:'\\omega vs t', xAxis:'t', yAxis:'\\omega', draw:'linear', slope:'Angular acceleration (\\alpha)', area:'Angular displacement (\\Delta\\theta)', desc:'Angular Velocity vs Time' },
+  { id:'gr11', title:'\\alpha vs t', xAxis:'t', yAxis:'\\alpha', draw:'horizontal', slope:'Not meaningful', area:'Change in angular velocity (\\Delta\\omega)', desc:'Angular Acceleration vs Time' },
+  { id:'gr12', title:'\\tau vs t', xAxis:'t', yAxis:'\\tau', draw:'bump', slope:'Not meaningful', area:'Angular impulse (\\Delta L)', desc:'Torque vs Time' },
+  { id:'gr13', title:'L vs t', xAxis:'t', yAxis:'L', draw:'linear', slope:'Net torque (\\tau_{net})', area:'Not meaningful', desc:'Angular Momentum vs Time' },
+  // SHM
+  { id:'gr14', title:'x vs t (SHM)', xAxis:'t', yAxis:'x', draw:'sine', slope:'Velocity (v)', area:'Not meaningful', desc:'Position vs Time (SHM)' },
+];
+
 /* Storage */
 const mem = {};
 const Store = {
@@ -277,7 +308,47 @@ function tex(latex, display = true) {
 
 function getFormulas(unit) {
   if (unit === 'all') return FORMULAS;
+  if (unit === 'graphs') return GRAPHS;
   return FORMULAS.filter(f => f.unit === unit);
+}
+
+function drawGraph(canvas, g, w) {
+  const dpr = window.devicePixelRatio || 1;
+  const h = Math.round(w * 0.65);
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const pad = { t: 16, r: 16, b: 32, l: 40 };
+  const gw = w - pad.l - pad.r, gh = h - pad.t - pad.b;
+
+  ctx.fillStyle = '#12122a'; ctx.fillRect(0, 0, w, h);
+
+  // axes
+  ctx.strokeStyle = '#8888a0'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + gh); ctx.lineTo(pad.l + gw, pad.t + gh); ctx.stroke();
+
+  // labels
+  ctx.fillStyle = '#e8e8f0'; ctx.font = '13px Arial'; ctx.textAlign = 'center';
+  ctx.fillText(g.xAxis, pad.l + gw / 2, h - 6);
+  ctx.save(); ctx.translate(12, pad.t + gh / 2); ctx.rotate(-Math.PI / 2); ctx.fillText(g.yAxis, 0, 0); ctx.restore();
+
+  // curve
+  const fns = {
+    'linear': t => t,
+    'horizontal': t => 0.5,
+    'parabola': t => t * t,
+    'parabola-center': t => 4 * (t - 0.5) * (t - 0.5),
+    'bump': t => Math.sin(Math.PI * t),
+    'sine': t => 0.5 + 0.45 * Math.sin(2 * Math.PI * t),
+  };
+  const fn = fns[g.draw] || fns['linear'];
+  ctx.strokeStyle = '#6c63ff'; ctx.lineWidth = 2.5; ctx.beginPath();
+  for (let i = 0; i <= 80; i++) {
+    const t = i / 80, x = pad.l + t * gw, y = pad.t + gh - fn(t) * gh * 0.85;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
 }
 
 /* Render */
@@ -317,6 +388,14 @@ function renderHome() {
       el('div', { class: 'count' }, FORMULAS.length + ' formulas' + (allWrong ? ' · ' + allWrong + ' marked wrong' : ''))
     )
   );
+  const graphWrong = GRAPHS.filter(g => S.wrong[g.id]).length;
+  grid.append(
+    el('button', { class: 'unit-btn graph-btn', onclick: () => openUnit('graphs') },
+      el('div', { class: 'unit-num' }, 'Special'),
+      el('h3', {}, 'Graph Analysis'),
+      el('div', { class: 'count' }, GRAPHS.length + ' graphs' + (graphWrong ? ' · ' + graphWrong + ' marked wrong' : ''))
+    )
+  );
   root.append(grid);
 
   if (Object.keys(S.wrong).length > 0) {
@@ -334,7 +413,7 @@ function goHome() { S.view = 'home'; S.q = null; render(); }
 
 function renderUnit() {
   const root = el('div');
-  const unitName = S.unit === 'all' ? 'All Formulas' : 'Unit ' + S.unit + ': ' + UNITS.find(u => u.num === S.unit).name;
+  const unitName = S.unit === 'all' ? 'All Formulas' : S.unit === 'graphs' ? 'Graph Analysis' : 'Unit ' + S.unit + ': ' + UNITS.find(u => u.num === S.unit).name;
   root.append(
     el('button', { class: 'back-btn', onclick: goHome }, '\u2190 Back'),
     el('h2', { class: 'unit-title' }, unitName)
@@ -371,16 +450,28 @@ function renderReview() {
   filtered.forEach(f => {
     const row = el('div', { class: 'review-row' });
     const nameRow = el('div', { style: 'display:flex;justify-content:space-between;align-items:center' });
-    nameRow.append(el('div', { class: 'formula-name' }, f.desc));
+    nameRow.append(el('div', { class: 'formula-name' }, f.desc || f.title));
     const wrongBtn = el('button', {
       style: 'font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;border:1px solid' + (S.wrong[f.id] ? 'var(--red)' : 'var(--border)') + ';color:' + (S.wrong[f.id] ? 'var(--red)' : 'var(--text-dim)'),
       onclick: () => { if (S.wrong[f.id]) delete S.wrong[f.id]; else S.wrong[f.id] = true; saveWrong(); render(); }
     }, S.wrong[f.id] ? 'WRONG \u2716' : 'Mark Wrong');
     nameRow.append(wrongBtn);
     row.append(nameRow);
-    const eqDiv = el('div', { class: 'formula-eq' });
-    eqDiv.append(tex(f.latex, true));
-    row.append(eqDiv);
+    if (f.draw) {
+      const c = el('canvas', { class: 'graph-canvas' });
+      row.append(c);
+      requestAnimationFrame(() => drawGraph(c, f, Math.min(280, row.clientWidth - 8)));
+      const info = el('div', { class: 'graph-answer' });
+      info.append(
+        el('div', { class: 'ga-row' }, el('span', { class: 'ga-label' }, 'Slope:'), el('span', { class: 'ga-val' }, tex(f.slope, false))),
+        el('div', { class: 'ga-row' }, el('span', { class: 'ga-label' }, 'Area:'), el('span', { class: 'ga-val' }, tex(f.area, false)))
+      );
+      row.append(info);
+    } else {
+      const eqDiv = el('div', { class: 'formula-eq' });
+      eqDiv.append(tex(f.latex, true));
+      row.append(eqDiv);
+    }
     list.append(row);
   });
   root.append(list);
@@ -414,19 +505,28 @@ function renderQuiz() {
     )
   );
 
-  const card = el('div', { class: 'card' });
+  const isGraph = !!cur.draw;
+  const card = el('div', { class: 'card', style: isGraph ? 'height:auto;min-height:420px' : '' });
 
   if (!q.flipped) {
-    card.append(el('div', { class: 'card-label' }, 'What is the formula?'));
-    const content = el('div', { class: 'card-content' });
-    content.append(
-      el('div', { class: 'card-desc', style: 'margin-bottom:12px;margin-top:0' }, cur.desc)
-    );
-    const promptEq = el('div', { class: 'card-eq' });
-    promptEq.append(tex(cur.front, true));
-    content.append(promptEq);
-    content.append(el('div', { class: 'flip-hint' }, 'Tap to reveal answer'));
-    card.append(content);
+    if (isGraph) {
+      card.append(el('div', { class: 'card-label' }, 'Graph: ' + cur.desc));
+      const content = el('div', { class: 'card-content' });
+      const c = el('canvas', { class: 'graph-canvas' });
+      content.append(c);
+      requestAnimationFrame(() => drawGraph(c, cur, Math.min(340, card.clientWidth - 48)));
+      content.append(el('div', { style: 'text-align:center;font-size:14px;color:var(--text-dim);margin-top:12px' }, 'What does the slope and area represent?'));
+      card.append(content);
+    } else {
+      card.append(el('div', { class: 'card-label' }, 'What is the formula?'));
+      const content = el('div', { class: 'card-content' });
+      content.append(el('div', { class: 'card-desc', style: 'margin-bottom:12px;margin-top:0' }, cur.desc));
+      const promptEq = el('div', { class: 'card-eq' });
+      promptEq.append(tex(cur.front, true));
+      content.append(promptEq);
+      content.append(el('div', { class: 'flip-hint' }, 'Tap to reveal answer'));
+      card.append(content);
+    }
     card.append(
       el('div', { class: 'controls' },
         el('button', { class: 'btn btn-wrong', onclick: () => answer(false) }, "\u2716 Don't Know"),
@@ -434,13 +534,25 @@ function renderQuiz() {
       )
     );
   } else {
-    card.append(el('div', { class: 'card-label' }, 'Answer'));
-    const content = el('div', { class: 'card-content' });
-    const fullEq = el('div', { class: 'card-eq' });
-    fullEq.append(tex(cur.latex, true));
-    content.append(fullEq);
-    content.append(el('div', { class: 'card-desc' }, cur.desc));
-    card.append(content);
+    if (isGraph) {
+      card.append(el('div', { class: 'card-label' }, 'Answer: ' + cur.desc));
+      const content = el('div', { class: 'card-content' });
+      const answers = el('div', { class: 'graph-answer' });
+      answers.append(
+        el('div', { class: 'ga-row' }, el('span', { class: 'ga-label' }, 'Slope:'), el('span', { class: 'ga-val' }, tex(cur.slope, false))),
+        el('div', { class: 'ga-row' }, el('span', { class: 'ga-label' }, 'Area:'), el('span', { class: 'ga-val' }, tex(cur.area, false)))
+      );
+      content.append(answers);
+      card.append(content);
+    } else {
+      card.append(el('div', { class: 'card-label' }, 'Answer'));
+      const content = el('div', { class: 'card-content' });
+      const fullEq = el('div', { class: 'card-eq' });
+      fullEq.append(tex(cur.latex, true));
+      content.append(fullEq);
+      content.append(el('div', { class: 'card-desc' }, cur.desc));
+      card.append(content);
+    }
     card.append(
       el('div', { class: 'controls' },
         el('button', { class: 'btn btn-wrong', onclick: () => answer(false) }, "\u2716 Wrong"),
