@@ -155,8 +155,8 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; bo
 .graph-canvas { display: block; margin: 0 auto; border-radius: 8px; }
 .graph-answer { display: flex; flex-direction: column; gap: 10px; padding: 12px 0; }
 .graph-answer .ga-row { display: flex; gap: 8px; align-items: baseline; }
-.graph-answer .ga-label { font-size: 13px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; min-width: 55px; }
-.graph-answer .ga-val { font-size: 15px; }
+.graph-answer .ga-label { font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; min-width: 55px; }
+.graph-answer .ga-val { font-family: Arial, Helvetica, sans-serif; font-size: 15px; }
 </style>
 </head>
 <body>
@@ -237,24 +237,24 @@ const FORMULAS = [
 
 const GRAPHS = [
   // Kinematics
-  { id:'gr1', title:'x vs t', xAxis:'t', yAxis:'x', draw:'linear', slope:'Velocity (v)', area:'Not meaningful', desc:'Position vs Time' },
-  { id:'gr2', title:'x vs t (accel)', xAxis:'t', yAxis:'x', draw:'parabola', slope:'Instantaneous velocity (v)', area:'Not meaningful', desc:'Position vs Time (constant accel)' },
-  { id:'gr3', title:'v vs t', xAxis:'t', yAxis:'v', draw:'linear', slope:'Acceleration (a)', area:'Displacement (\\Delta x)', desc:'Velocity vs Time' },
-  { id:'gr4', title:'a vs t', xAxis:'t', yAxis:'a', draw:'horizontal', slope:'Not meaningful', area:'Change in velocity (\\Delta v)', desc:'Acceleration vs Time' },
+  { id:'gr1', title:'x vs t', xAxis:'t', yAxis:'x', draw:'linear', slope:'Velocity (v)', area:'Nothing', desc:'Position vs Time' },
+  { id:'gr3', title:'v vs t', xAxis:'t', yAxis:'v', draw:'linear', slope:'Acceleration (a)', area:'Displacement (dx)', desc:'Velocity vs Time' },
+  { id:'gr4', title:'a vs t', xAxis:'t', yAxis:'a', draw:'horizontal', slope:'Nothing', area:'Change in velocity (dv)', desc:'Acceleration vs Time' },
   // Force & Momentum
-  { id:'gr5', title:'F vs t', xAxis:'t', yAxis:'F', draw:'bump', slope:'Not meaningful', area:'Impulse (J = \\Delta p)', desc:'Force vs Time (impulse)' },
-  { id:'gr6', title:'F vs x (spring)', xAxis:'x', yAxis:'F', draw:'linear', slope:'Spring constant (k)', area:'Work (W = \\tfrac{1}{2}kx^2)', desc:'Force vs Displacement (spring)' },
-  { id:'gr7', title:'p vs t', xAxis:'t', yAxis:'p', draw:'linear', slope:'Net force (F_{net})', area:'Not meaningful', desc:'Momentum vs Time' },
+  { id:'gr5', title:'F vs t', xAxis:'t', yAxis:'F', draw:'bump', slope:'Nothing', area:'Impulse (J = dp)', desc:'Force vs Time (impulse)' },
+  { id:'gr15', title:'F vs x', xAxis:'x', yAxis:'F', draw:'linear', slope:'Nothing', area:'Work (W)', desc:'Force vs Displacement' },
+  { id:'gr7', title:'p vs t', xAxis:'t', yAxis:'p', draw:'linear', slope:'Net force (Fnet)', area:'Nothing', desc:'Momentum vs Time' },
+  { id:'gr16', title:'m vs v', xAxis:'v', yAxis:'m', draw:'linear', slope:'Nothing', area:'Momentum (p)', desc:'Mass vs Velocity' },
   // Energy
-  { id:'gr8', title:'PE vs x', xAxis:'x', yAxis:'U', draw:'parabola-center', slope:'Negative of force (-F)', area:'Not meaningful', desc:'Potential Energy vs Position' },
+  { id:'gr8', title:'PE vs x', xAxis:'x', yAxis:'U', draw:'parabola-center', slope:'Negative of force (-F)', area:'Nothing', desc:'Potential Energy vs Position' },
+  { id:'gr17', title:'P vs t', xAxis:'t', yAxis:'P', draw:'linear', slope:'Nothing', area:'Work (W)', desc:'Power vs Time' },
+  { id:'gr18', title:'W vs t', xAxis:'t', yAxis:'W', draw:'linear', slope:'Power (P)', area:'Nothing', desc:'Work vs Time' },
   // Rotation
-  { id:'gr9', title:'\\theta vs t', xAxis:'t', yAxis:'\\theta', draw:'linear', slope:'Angular velocity (\\omega)', area:'Not meaningful', desc:'Angular Position vs Time' },
-  { id:'gr10', title:'\\omega vs t', xAxis:'t', yAxis:'\\omega', draw:'linear', slope:'Angular acceleration (\\alpha)', area:'Angular displacement (\\Delta\\theta)', desc:'Angular Velocity vs Time' },
-  { id:'gr11', title:'\\alpha vs t', xAxis:'t', yAxis:'\\alpha', draw:'horizontal', slope:'Not meaningful', area:'Change in angular velocity (\\Delta\\omega)', desc:'Angular Acceleration vs Time' },
-  { id:'gr12', title:'\\tau vs t', xAxis:'t', yAxis:'\\tau', draw:'bump', slope:'Not meaningful', area:'Angular impulse (\\Delta L)', desc:'Torque vs Time' },
-  { id:'gr13', title:'L vs t', xAxis:'t', yAxis:'L', draw:'linear', slope:'Net torque (\\tau_{net})', area:'Not meaningful', desc:'Angular Momentum vs Time' },
-  // SHM
-  { id:'gr14', title:'x vs t (SHM)', xAxis:'t', yAxis:'x', draw:'sine', slope:'Velocity (v)', area:'Not meaningful', desc:'Position vs Time (SHM)' },
+  { id:'gr9', title:'theta vs t', xAxis:'t', yAxis:'theta', draw:'linear', slope:'Angular velocity (omega)', area:'Nothing', desc:'Angular Position vs Time' },
+  { id:'gr10', title:'omega vs t', xAxis:'t', yAxis:'omega', draw:'linear', slope:'Angular acceleration (alpha)', area:'Angular displacement (d-theta)', desc:'Angular Velocity vs Time' },
+  { id:'gr11', title:'alpha vs t', xAxis:'t', yAxis:'alpha', draw:'horizontal', slope:'Nothing', area:'Change in angular velocity (d-omega)', desc:'Angular Acceleration vs Time' },
+  { id:'gr12', title:'tau vs t', xAxis:'t', yAxis:'tau', draw:'bump', slope:'Nothing', area:'Angular impulse (dL)', desc:'Torque vs Time' },
+  { id:'gr13', title:'L vs t', xAxis:'t', yAxis:'L', draw:'linear', slope:'Net torque (tau-net)', area:'Nothing', desc:'Angular Momentum vs Time' },
 ];
 
 /* Storage */
@@ -329,9 +329,10 @@ function drawGraph(canvas, g, w) {
   ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + gh); ctx.lineTo(pad.l + gw, pad.t + gh); ctx.stroke();
 
   // labels
-  ctx.fillStyle = '#e8e8f0'; ctx.font = '13px Arial'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#e8e8f0'; ctx.font = '14px Arial, Helvetica, sans-serif'; ctx.textAlign = 'center';
   ctx.fillText(g.xAxis, pad.l + gw / 2, h - 6);
-  ctx.save(); ctx.translate(12, pad.t + gh / 2); ctx.rotate(-Math.PI / 2); ctx.fillText(g.yAxis, 0, 0); ctx.restore();
+  ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+  ctx.fillText(g.yAxis, pad.l, pad.t - 4);
 
   // curve
   const fns = {
@@ -463,8 +464,8 @@ function renderReview() {
       requestAnimationFrame(() => drawGraph(c, f, Math.min(280, row.clientWidth - 8)));
       const info = el('div', { class: 'graph-answer' });
       info.append(
-        el('div', { class: 'ga-row' }, el('span', { class: 'ga-label' }, 'Slope:'), el('span', { class: 'ga-val' }, tex(f.slope, false))),
-        el('div', { class: 'ga-row' }, el('span', { class: 'ga-label' }, 'Area:'), el('span', { class: 'ga-val' }, tex(f.area, false)))
+        el('div', { class: 'ga-row' }, el('span', { class: 'ga-label' }, 'Slope:'), el('span', { class: 'ga-val' }, f.slope)),
+        el('div', { class: 'ga-row' }, el('span', { class: 'ga-label' }, 'Area:'), el('span', { class: 'ga-val' }, f.area))
       );
       row.append(info);
     } else {
@@ -539,8 +540,8 @@ function renderQuiz() {
       const content = el('div', { class: 'card-content' });
       const answers = el('div', { class: 'graph-answer' });
       answers.append(
-        el('div', { class: 'ga-row' }, el('span', { class: 'ga-label' }, 'Slope:'), el('span', { class: 'ga-val' }, tex(cur.slope, false))),
-        el('div', { class: 'ga-row' }, el('span', { class: 'ga-label' }, 'Area:'), el('span', { class: 'ga-val' }, tex(cur.area, false)))
+        el('div', { class: 'ga-row' }, el('span', { class: 'ga-label' }, 'Slope:'), el('span', { class: 'ga-val' }, cur.slope)),
+        el('div', { class: 'ga-row' }, el('span', { class: 'ga-label' }, 'Area:'), el('span', { class: 'ga-val' }, cur.area))
       );
       content.append(answers);
       card.append(content);
