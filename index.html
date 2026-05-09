@@ -149,6 +149,99 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; bo
 
 .empty { padding: 40px; text-align: center; color: var(--text-dim); font-size: 14px; }
 
+/* Nuke button */
+.nuke-btn {
+  display: block; margin: 0 auto 32px; padding: 18px 36px;
+  font-size: 18px; font-weight: 900; letter-spacing: 0.08em;
+  background: linear-gradient(135deg, #e05555, #ff6b35); color: #fff;
+  border-radius: 14px; border: 2px solid #ff4444;
+  box-shadow: 0 0 20px rgba(255,60,60,0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer; position: relative; overflow: hidden;
+}
+.nuke-btn:hover { transform: scale(1.05); box-shadow: 0 0 40px rgba(255,60,60,0.5); }
+.nuke-btn::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  transform: translateX(-100%); animation: nukeShine 2s infinite;
+}
+@keyframes nukeShine { to { transform: translateX(100%); } }
+
+/* Explosion */
+.shake { animation: shake 0.5s ease-out; }
+@keyframes shake {
+  0%,100% { transform: translate(0); }
+  10% { transform: translate(-20px, 14px) rotate(-1deg); }
+  20% { transform: translate(18px, -10px) rotate(1.5deg); }
+  30% { transform: translate(-14px, 20px) rotate(-2deg); }
+  40% { transform: translate(22px, -8px) rotate(1deg); }
+  50% { transform: translate(-10px, -16px) rotate(-1.5deg); }
+  60% { transform: translate(16px, 12px) rotate(2deg); }
+  70% { transform: translate(-22px, -14px) rotate(-1deg); }
+  80% { transform: translate(18px, 16px) rotate(1.5deg); }
+  90% { transform: translate(-8px, -20px) rotate(-2deg); }
+}
+.fly-away {
+  transition: all 1.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  opacity: 0 !important;
+}
+.flash-overlay {
+  position: fixed; inset: 0; background: #fff; z-index: 9999;
+  animation: flashBang 0.8s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes flashBang { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+/* Explosion canvas */
+.boom-canvas {
+  position: fixed; inset: 0; z-index: 9998; pointer-events: none;
+}
+
+/* Celebration */
+.celebrate-overlay {
+  position: fixed; inset: 0; z-index: 10000;
+  background: radial-gradient(ellipse at center, #1a1a3e 0%, #0a0a1a 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  animation: celebFadeIn 1s ease-out;
+  overflow: hidden;
+}
+@keyframes celebFadeIn { from { opacity: 0; } to { opacity: 1; } }
+.celebrate-overlay .celeb-emoji { font-size: 80px; margin-bottom: 16px; animation: celebBounce 0.6s ease-out; }
+@keyframes celebBounce { 0% { transform: scale(0) rotate(-20deg); } 60% { transform: scale(1.3) rotate(5deg); } 100% { transform: scale(1) rotate(0); } }
+.celebrate-overlay h1 {
+  font-size: 42px; font-weight: 900; margin: 0 0 12px; text-align: center; padding: 0 20px;
+  background: linear-gradient(135deg, #ff6b9d, #c084fc, #60a5fa, #34d399);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; animation: celebTitle 0.8s ease-out 0.2s both;
+}
+@keyframes celebTitle { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+.celebrate-overlay .celeb-sub {
+  font-size: 18px; color: #b8b8d0; margin: 0 0 8px; text-align: center; padding: 0 20px;
+  animation: celebTitle 0.8s ease-out 0.5s both;
+}
+.celebrate-overlay .celeb-msg {
+  font-size: 15px; color: #8888a0; margin: 0 0 36px; text-align: center; padding: 0 20px;
+  animation: celebTitle 0.8s ease-out 0.7s both;
+}
+.celebrate-overlay .celeb-close {
+  font-size: 14px; font-weight: 700; color: #8888a0; letter-spacing: 0.1em;
+  padding: 12px 28px; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px;
+  cursor: pointer; background: none; font-family: inherit;
+  animation: celebTitle 0.8s ease-out 1s both; transition: all 0.2s;
+}
+.celebrate-overlay .celeb-close:hover { color: #e8e8f0; border-color: rgba(255,255,255,0.4); }
+
+/* Confetti */
+.confetti {
+  position: fixed; top: -10px; width: 10px; height: 10px; z-index: 10001;
+  border-radius: 2px; animation: confettiFall linear forwards; pointer-events: none;
+}
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+
 /* Graph unit */
 .unit-btn.graph-btn { border-color: #ff9800; background: linear-gradient(135deg, var(--bg-card), rgba(255,152,0,0.1)); }
 .unit-btn.graph-btn .unit-num { color: #ff9800; }
@@ -406,6 +499,15 @@ function renderHome() {
       )
     );
   }
+
+  // Nuke button
+  const nukeSection = el('div', { style: 'margin-top:48px;padding-top:32px;border-top:1px solid var(--border);text-align:center' });
+  nukeSection.append(
+    el('div', { style: 'font-size:13px;color:var(--text-dim);margin-bottom:12px;letter-spacing:0.05em' }, 'AP Physics 1 Exam is OVER.'),
+    el('button', { class: 'nuke-btn', onclick: nukeTheSite }, 'Do u want to explode this site?')
+  );
+  root.append(nukeSection);
+
   return root;
 }
 
@@ -615,6 +717,262 @@ function renderComplete() {
     );
   }
   return div;
+}
+
+/* Nuke */
+/* Explosion engine - canvas based for real boom effects */
+let boomCanvas, boomCtx, boomParticles = [], boomFrame;
+function initBoomCanvas() {
+  boomCanvas = document.createElement('canvas');
+  boomCanvas.className = 'boom-canvas';
+  const dpr = window.devicePixelRatio || 1;
+  boomCanvas.width = innerWidth * dpr; boomCanvas.height = innerHeight * dpr;
+  boomCanvas.style.width = innerWidth + 'px'; boomCanvas.style.height = innerHeight + 'px';
+  document.body.append(boomCanvas);
+  boomCtx = boomCanvas.getContext('2d');
+  boomCtx.scale(dpr, dpr);
+  boomParticles = [];
+  tickBoom();
+}
+function tickBoom() {
+  boomCtx.clearRect(0, 0, innerWidth, innerHeight);
+  for (let i = boomParticles.length - 1; i >= 0; i--) {
+    const p = boomParticles[i];
+    if (p.type === 'spark') {
+      p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.vx *= 0.98;
+      p.life -= p.decay;
+      // glow
+      boomCtx.globalAlpha = Math.max(0, p.life) * 0.4;
+      boomCtx.fillStyle = p.color;
+      boomCtx.beginPath(); boomCtx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2); boomCtx.fill();
+      // core
+      boomCtx.globalAlpha = Math.max(0, p.life);
+      boomCtx.fillStyle = '#fff';
+      boomCtx.beginPath(); boomCtx.arc(p.x, p.y, p.size * 0.6, 0, Math.PI * 2); boomCtx.fill();
+    } else if (p.type === 'ring') {
+      p.radius += p.speed;
+      p.life -= p.decay;
+      boomCtx.globalAlpha = Math.max(0, p.life) * 0.7;
+      boomCtx.strokeStyle = p.color;
+      boomCtx.lineWidth = Math.max(1, p.width * p.life);
+      boomCtx.beginPath(); boomCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); boomCtx.stroke();
+    } else if (p.type === 'flash') {
+      p.life -= p.decay;
+      const grad = boomCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius);
+      grad.addColorStop(0, `rgba(255,255,255,${Math.max(0, p.life)})`);
+      grad.addColorStop(0.3, `rgba(255,200,100,${Math.max(0, p.life) * 0.6})`);
+      grad.addColorStop(1, 'rgba(255,100,50,0)');
+      boomCtx.globalAlpha = 1;
+      boomCtx.fillStyle = grad;
+      boomCtx.fillRect(p.x - p.radius, p.y - p.radius, p.radius * 2, p.radius * 2);
+    } else if (p.type === 'smoke') {
+      p.x += p.vx; p.y += p.vy; p.vy -= 0.05; p.size += 0.8;
+      p.life -= p.decay;
+      boomCtx.globalAlpha = Math.max(0, p.life) * 0.25;
+      boomCtx.fillStyle = p.color;
+      boomCtx.beginPath(); boomCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2); boomCtx.fill();
+    }
+    if (p.life <= 0) boomParticles.splice(i, 1);
+  }
+  boomCtx.globalAlpha = 1;
+  boomFrame = requestAnimationFrame(tickBoom);
+}
+function spawnBoom(x, y) {
+  const sparkColors = ['#ff4444','#ff6b35','#fbbf24','#ff6b9d','#e879f9','#ff8c00','#ff1744'];
+  // Big center flash
+  boomParticles.push({ type:'flash', x, y, radius: 180, life: 1, decay: 0.04 });
+  // Shockwave rings
+  boomParticles.push({ type:'ring', x, y, radius: 0, speed: 12, life: 1, decay: 0.025, color:'rgba(255,150,50,0.8)', width: 6 });
+  boomParticles.push({ type:'ring', x, y, radius: 0, speed: 8, life: 1, decay: 0.02, color:'rgba(255,80,80,0.6)', width: 4 });
+  // Sparks
+  for (let i = 0; i < 50; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 3 + Math.random() * 10;
+    boomParticles.push({
+      type:'spark', x, y,
+      vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed - 2,
+      size: 2 + Math.random() * 5, life: 1, decay: 0.01 + Math.random() * 0.02,
+      color: sparkColors[Math.floor(Math.random() * sparkColors.length)]
+    });
+  }
+  // Smoke puffs
+  for (let i = 0; i < 12; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 1 + Math.random() * 3;
+    boomParticles.push({
+      type:'smoke', x, y,
+      vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+      size: 8 + Math.random() * 15, life: 1, decay: 0.008 + Math.random() * 0.01,
+      color: ['#555','#666','#444','#777'][Math.floor(Math.random()*4)]
+    });
+  }
+}
+
+function nukeTheSite() {
+  const app = $('#app');
+  initBoomCanvas();
+
+  // Phase 1: Screen shake (longer)
+  app.classList.add('shake');
+
+  // Phase 2: Cards explode one by one
+  const cards = app.querySelectorAll('.unit-btn, .nuke-btn, .header, .btn');
+  cards.forEach((card, i) => {
+    const delay = i * 180;
+    setTimeout(() => {
+      const rect = card.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      spawnBoom(cx, cy);
+
+      // Re-shake each time
+      app.classList.remove('shake');
+      void app.offsetWidth;
+      app.classList.add('shake');
+
+      const angle = Math.random() * 360;
+      const dist = 800 + Math.random() * 1200;
+      const dx = Math.cos(angle * Math.PI / 180) * dist;
+      const dy = Math.sin(angle * Math.PI / 180) * dist;
+      const rot = (Math.random() - 0.5) * 720;
+      card.style.transition = 'all 1.2s cubic-bezier(0.25, 0.8, 0.25, 1)';
+      card.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
+      card.style.opacity = '0';
+    }, delay);
+  });
+
+  const totalTime = cards.length * 180;
+
+  // Phase 3: Final big explosion in center
+  setTimeout(() => {
+    spawnBoom(innerWidth / 2, innerHeight / 2);
+    spawnBoom(innerWidth * 0.3, innerHeight * 0.4);
+    spawnBoom(innerWidth * 0.7, innerHeight * 0.6);
+  }, totalTime + 100);
+
+  // Phase 3.5: Flash bang
+  setTimeout(() => {
+    const flash = el('div', { class: 'flash-overlay' });
+    document.body.append(flash);
+    setTimeout(() => flash.remove(), 800);
+  }, totalTime + 400);
+  setTimeout(() => {
+    const flash2 = el('div', { class: 'flash-overlay' });
+    flash2.style.background = 'var(--accent)';
+    document.body.append(flash2);
+    setTimeout(() => flash2.remove(), 600);
+  }, totalTime + 800);
+
+  // Phase 4: Celebration
+  setTimeout(() => {
+    cancelAnimationFrame(boomFrame);
+    boomCanvas.remove();
+    app.innerHTML = '';
+    showCelebration();
+  }, totalTime + 1400);
+}
+
+function spawnConfetti(count = 100) {
+  const colors = ['#ff6b9d','#c084fc','#60a5fa','#34d399','#fbbf24','#f87171','#fb923c','#a78bfa','#e879f9','#22d3ee'];
+  for (let i = 0; i < count; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.width = (6 + Math.random() * 10) + 'px';
+    c.style.height = (6 + Math.random() * 10) + 'px';
+    c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    c.style.animationDuration = (2.5 + Math.random() * 3.5) + 's';
+    c.style.animationDelay = (Math.random() * 2.5) + 's';
+    document.body.append(c);
+    setTimeout(() => c.remove(), 7000);
+  }
+}
+
+function spawnFireworks() {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:fixed;inset:0;z-index:10002;pointer-events:none';
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = innerWidth * dpr; canvas.height = innerHeight * dpr;
+  canvas.style.width = innerWidth + 'px'; canvas.style.height = innerHeight + 'px';
+  document.body.append(canvas);
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const particles = [];
+  const colors = ['#ff6b9d','#c084fc','#60a5fa','#34d399','#fbbf24','#f87171','#fb923c','#e879f9','#22d3ee','#fff'];
+
+  function burst(x, y) {
+    const count = 60 + Math.random() * 40;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 1.5 + Math.random() * 4;
+      particles.push({
+        x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+        life: 1, decay: 0.008 + Math.random() * 0.012,
+        size: 2 + Math.random() * 3, color,
+        trail: []
+      });
+    }
+  }
+
+  // Launch sequence
+  const launches = [
+    { t: 0, x: 0.3, y: 0.3 }, { t: 200, x: 0.7, y: 0.25 }, { t: 400, x: 0.5, y: 0.35 },
+    { t: 700, x: 0.2, y: 0.4 }, { t: 900, x: 0.8, y: 0.3 }, { t: 1100, x: 0.5, y: 0.2 },
+    { t: 1400, x: 0.35, y: 0.35 }, { t: 1600, x: 0.65, y: 0.28 },
+    { t: 2000, x: 0.4, y: 0.3 }, { t: 2100, x: 0.6, y: 0.3 }, { t: 2200, x: 0.5, y: 0.25 },
+  ];
+  launches.forEach(l => setTimeout(() => burst(innerWidth * l.x, innerHeight * l.y), l.t));
+
+  let frame;
+  function tick() {
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.trail.push({ x: p.x, y: p.y, life: p.life });
+      if (p.trail.length > 6) p.trail.shift();
+      p.x += p.vx; p.y += p.vy;
+      p.vy += 0.03;
+      p.vx *= 0.99;
+      p.life -= p.decay;
+      // Draw trail
+      for (let j = 0; j < p.trail.length; j++) {
+        const t = p.trail[j];
+        ctx.globalAlpha = t.life * 0.3 * (j / p.trail.length);
+        ctx.fillStyle = p.color;
+        ctx.beginPath(); ctx.arc(t.x, t.y, p.size * 0.6, 0, Math.PI * 2); ctx.fill();
+      }
+      // Draw particle
+      ctx.globalAlpha = p.life;
+      ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color; ctx.shadowBlur = 8;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur = 0;
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+    ctx.globalAlpha = 1;
+    if (particles.length > 0) frame = requestAnimationFrame(tick);
+    else { cancelAnimationFrame(frame); canvas.remove(); }
+  }
+  tick();
+}
+
+function showCelebration() {
+  spawnConfetti(120);
+  setTimeout(() => spawnConfetti(80), 1200);
+  setTimeout(() => spawnConfetti(60), 2800);
+  spawnFireworks();
+
+  const overlay = el('div', { class: 'celebrate-overlay' },
+    el('div', { class: 'celeb-emoji' }, '\uD83C\uDF89'),
+    el('h1', {}, 'Congratulations!'),
+    el('div', { class: 'celeb-sub' }, 'No more physics'),
+    el('div', { class: 'celeb-msg' }, 'No more stress'),
+    el('div', { class: 'celeb-msg', style: 'animation-delay:0.9s;margin-top:4px' }, '\u2764\uFE0F')
+  );
+  document.body.append(overlay);
 }
 
 /* Boot */
